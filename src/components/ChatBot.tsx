@@ -23,6 +23,61 @@ import {
   clearConversation
 } from '@/lib/chatbotService';
 
+// Markdown-like text renderer for professional looking messages
+const renderFormattedText = (text: string) => {
+  // Split by lines
+  const lines = text.split('\n');
+  
+  return lines.map((line, lineIndex) => {
+    // Process inline formatting
+    let processedLine = line;
+    
+    // Convert **bold** to styled span
+    processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-purple-300">$1</strong>');
+    
+    // Convert `code` to styled span
+    processedLine = processedLine.replace(/`(.*?)`/g, '<code class="px-1.5 py-0.5 bg-purple-500/20 rounded text-purple-300 text-xs">$1</code>');
+    
+    // Determine line styling
+    let lineClass = '';
+    let prefix = null;
+    
+    // Check for headers
+    if (line.startsWith('**') && line.endsWith('**')) {
+      lineClass = 'font-semibold text-white text-sm mt-2 mb-1';
+    }
+    // Check for bullet points
+    else if (line.trim().startsWith('- ') || line.trim().startsWith('• ')) {
+      lineClass = 'pl-4 text-gray-300';
+      prefix = <span className="text-purple-400 mr-2">•</span>;
+      processedLine = processedLine.replace(/^(\s*[-•]\s*)/, '');
+    }
+    // Check for emoji bullet points (✅, 🎯, 📚, etc.)
+    else if (/^[✅🎯📚💼🚀👑🌱💡📊📝🏆📈💰🧘💪🌟📧💬🌐🧠⚡🔧🎨🔒👨‍💻💻👋😊🙌🤖🤝]/.test(line.trim())) {
+      lineClass = 'flex items-start gap-2 mt-1';
+    }
+    // Check for numbered items
+    else if (/^\d+\./.test(line.trim())) {
+      lineClass = 'pl-4 text-gray-300';
+    }
+    // Empty lines
+    else if (line.trim() === '') {
+      return <div key={lineIndex} className="h-2" />;
+    }
+    // Regular text
+    else {
+      lineClass = 'text-gray-300';
+    }
+    
+    return (
+      <div key={lineIndex} className={`${lineClass} leading-relaxed`}>
+        {prefix}
+        <span dangerouslySetInnerHTML={{ __html: processedLine }} />
+      </div>
+    );
+  });
+};
+
 const ChatBot = () => {
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
@@ -30,7 +85,7 @@ const ChatBot = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const userId = user?.id || 'anonymous';
@@ -53,9 +108,10 @@ const ChatBot = () => {
 
   // Auto-scroll to bottom
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    // Small delay to ensure DOM is updated
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   }, [messages, isLoading]);
 
   // Focus input when chat opens
@@ -183,7 +239,7 @@ const ChatBot = () => {
             </div>
 
             {/* Messages Area */}
-            <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+            <ScrollArea className="flex-1 p-4">
               <div className="space-y-4">
                 {/* Welcome message if no messages */}
                 {messages.length === 0 && (
@@ -220,9 +276,14 @@ const ChatBot = () => {
                     >
                       <div className="flex items-start gap-2">
                         {message.role === 'assistant' && (
-                          <Bot className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                          <Bot className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
                         )}
-                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                        <div className="text-sm flex-1">
+                          {message.role === 'assistant' 
+                            ? renderFormattedText(message.content)
+                            : <span className="whitespace-pre-wrap">{message.content}</span>
+                          }
+                        </div>
                         {message.role === 'user' && (
                           <User className="h-4 w-4 text-white/70 mt-0.5 flex-shrink-0" />
                         )}
@@ -250,21 +311,24 @@ const ChatBot = () => {
                     </div>
                   </motion.div>
                 )}
+                {/* Scroll anchor */}
+                <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
 
-            {/* Quick Suggestions */}
-            {messages.length === 0 && suggestions.length > 0 && (
+            {/* Quick Suggestions - Always show after messages */}
+            {suggestions.length > 0 && !isLoading && (
               <div className="px-4 pb-2">
+                <p className="text-xs text-gray-500 mb-2">💡 Try asking:</p>
                 <div className="flex flex-wrap gap-2">
-                  {suggestions.map((suggestion, index) => (
+                  {suggestions.slice(0, 3).map((suggestion, index) => (
                     <motion.button
                       key={suggestion}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.05 }}
                       onClick={() => handleSendMessage(suggestion)}
-                      className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white transition-all"
+                      className="text-xs px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:text-white hover:border-purple-400 transition-all"
                     >
                       {suggestion}
                     </motion.button>
