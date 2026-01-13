@@ -1,4 +1,10 @@
-// Answer bank for frontend questions
+// Answer bank for interview questions
+import { DEVOPS_ANSWERS } from './devopsAnswers';
+import { UIUX_ANSWERS } from './uiuxAnswers';
+import { DATASCIENCE_ANSWERS } from './dataScienceAnswers';
+import { SECURITY_ANSWERS } from './securityAnswers';
+import { FRONTEND_ANSWERS } from './frontendAnswers';
+import { BACKEND_ANSWERS } from './backendAnswers';
 export const ANSWER_BANK: Record<string, string> = {
   // React Answers
   "How do you optimize a React application for better performance?": `
@@ -214,43 +220,127 @@ export async function getCorrectAnswer(question: string): Promise<string> {
   if (ANSWER_BANK[question]) {
     return ANSWER_BANK[question];
   }
-  
+
+  // Check Frontend answers
+  const frontendCategories = ['html', 'css', 'javascript', 'react'] as const;
+  for (const category of frontendCategories) {
+    const categoryAnswers = FRONTEND_ANSWERS[category];
+    if (categoryAnswers) {
+      for (const difficulty of ['easy', 'medium', 'hard'] as const) {
+        const difficultyAnswers = categoryAnswers[difficulty];
+        if (difficultyAnswers && difficultyAnswers[question]) {
+          return difficultyAnswers[question];
+        }
+      }
+    }
+  }
+
+  // Check Backend answers
+  const backendCategories = ['nodejs', 'expressjs', 'mongodb', 'python', 'django', 'fastapi'] as const;
+  for (const category of backendCategories) {
+    const categoryAnswers = BACKEND_ANSWERS[category];
+    if (categoryAnswers) {
+      for (const difficulty of ['easy', 'medium', 'hard'] as const) {
+        const difficultyAnswers = categoryAnswers[difficulty];
+        if (difficultyAnswers && difficultyAnswers[question]) {
+          return difficultyAnswers[question];
+        }
+      }
+    }
+  }
+
+  // Check DevOps answers
+  const devopsCategories = ['docker', 'kubernetes', 'cicd', 'aws', 'linux', 'terraform', 'jenkins', 'ansible'] as const;
+  for (const category of devopsCategories) {
+    const categoryAnswers = DEVOPS_ANSWERS[category];
+    if (categoryAnswers) {
+      for (const difficulty of ['easy', 'medium', 'hard'] as const) {
+        const difficultyAnswers = categoryAnswers[difficulty];
+        if (difficultyAnswers && difficultyAnswers[question]) {
+          return difficultyAnswers[question];
+        }
+      }
+    }
+  }
+
+  // Check UI/UX answers
+  const uiuxCategories = ['designFundamentals', 'userExperience', 'prototypingTools', 'interactionDesign', 'mobileDesign'] as const;
+  for (const category of uiuxCategories) {
+    const categoryAnswers = UIUX_ANSWERS[category];
+    if (categoryAnswers) {
+      for (const difficulty of ['easy', 'medium', 'hard'] as const) {
+        const difficultyAnswers = categoryAnswers[difficulty];
+        if (difficultyAnswers && difficultyAnswers[question]) {
+          return difficultyAnswers[question];
+        }
+      }
+    }
+  }
+
+  // Check Data Science answers
+  const dataScienceCategories = ['statistics', 'machineLearning', 'pythonDS', 'sqlDS', 'deepLearning', 'dataEngineering'] as const;
+  for (const category of dataScienceCategories) {
+    const categoryAnswers = DATASCIENCE_ANSWERS[category];
+    if (categoryAnswers) {
+      for (const difficulty of ['easy', 'medium', 'hard'] as const) {
+        const difficultyAnswers = categoryAnswers[difficulty];
+        if (difficultyAnswers && difficultyAnswers[question]) {
+          return difficultyAnswers[question];
+        }
+      }
+    }
+  }
+
+  // Check Security answers
+  const securityCategories = ['networkSecurity', 'applicationSecurity', 'cryptography', 'cloudSecurity', 'incidentResponse', 'complianceRisk'] as const;
+  for (const category of securityCategories) {
+    const categoryAnswers = SECURITY_ANSWERS[category];
+    if (categoryAnswers) {
+      for (const difficulty of ['easy', 'medium', 'hard'] as const) {
+        const difficultyAnswers = categoryAnswers[difficulty];
+        if (difficultyAnswers && difficultyAnswers[question]) {
+          return difficultyAnswers[question];
+        }
+      }
+    }
+  }
+
   // Generate a basic answer structure for common question patterns
   const generateBasicAnswer = (q: string): string => {
     const lowerQ = q.toLowerCase();
-    
+
     if (lowerQ.includes('react') && lowerQ.includes('performance')) {
       return `**React Performance Optimization:**\n\n1. **React.memo()** - Prevent unnecessary re-renders\n2. **useMemo() & useCallback()** - Memoize expensive operations\n3. **Code Splitting** - Use React.lazy() and Suspense\n4. **Proper Keys** - Use stable, unique keys in lists\n5. **State Management** - Keep state local when possible\n6. **Bundle Optimization** - Tree shaking and minification\n7. **Image Optimization** - Lazy loading and proper formats`;
     }
-    
+
     if (lowerQ.includes('state') && lowerQ.includes('props')) {
       return `**State vs Props:**\n\n**State:**\n- Internal component data\n- Mutable (can change)\n- Triggers re-renders\n- Private to component\n\n**Props:**\n- Data from parent\n- Immutable (read-only)\n- Passed down from parent\n- Public interface`;
     }
-    
+
     if (lowerQ.includes('var') && lowerQ.includes('let') && lowerQ.includes('const')) {
       return `**var vs let vs const:**\n\n**var:** Function scoped, hoisted, can redeclare\n**let:** Block scoped, temporal dead zone, no redeclaration\n**const:** Block scoped, must initialize, cannot reassign`;
     }
-    
+
     if (lowerQ.includes('hooks') && (lowerQ.includes('usestate') || lowerQ.includes('useeffect'))) {
       return `**React Hooks - useState vs useEffect:**\n\n**React Hooks:**\n- Functions that let you use state and lifecycle in functional components\n- Must be called at top level, not inside loops or conditions\n- Start with 'use' prefix\n\n**useState:**\n- Manages component state\n- Returns [value, setter] array\n- Example: \`const [count, setCount] = useState(0)\`\n- Use for: form inputs, toggles, counters\n\n**useEffect:**\n- Handles side effects (API calls, subscriptions, DOM updates)\n- Runs after render\n- Example: \`useEffect(() => { /* side effect */ }, [dependencies])\`\n- Use for: data fetching, event listeners, cleanup\n\n**When to use:**\n- useState: When you need to store and update component data\n- useEffect: When you need to perform side effects or respond to changes`;
     }
-    
+
     if (lowerQ.includes('jsx')) {
       return `**JSX (JavaScript XML):**\n\n- Syntax extension for JavaScript\n- Allows HTML-like code in JavaScript\n- Gets transpiled to React.createElement()\n- Makes components more readable\n- Must return single parent or Fragment\n- Example: \`const element = <h1>Hello World</h1>\``;
     }
-    
+
     if (lowerQ.includes('closure')) {
       return `**JavaScript Closures:**\n\n- Function that has access to outer function's variables\n- Inner function remembers outer scope\n- Created when function is defined\n- Used for data privacy and module patterns\n\n**Example:**\n\`\`\`javascript\nfunction outer(x) {\n  return function inner(y) {\n    return x + y; // access to x\n  };\n}\nconst add5 = outer(5);\nconsole.log(add5(3)); // 8\n\`\`\``;
     }
-    
+
     return `**Answer for: ${q}**\n\nThis is a common interview question. Key points to cover:\n\n1. Define the concept clearly\n2. Explain the main features/characteristics\n3. Provide practical examples\n4. Mention best practices\n5. Discuss real-world usage scenarios`;
   };
-  
+
   try {
     const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
     console.log('Gemini API Key available:', !!GEMINI_API_KEY);
     console.log('Fetching answer for question:', question);
-    
+
     // Try Gemini first for better answers
     if (GEMINI_API_KEY) {
       const response = await fetch(
@@ -261,7 +351,9 @@ export async function getCorrectAnswer(question: string): Promise<string> {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: `Provide a comprehensive, detailed answer for this interview question: "${question}"
+            contents: [{
+              parts: [{
+                text: `Provide a comprehensive, detailed answer for this interview question: "${question}"
 
 Format the answer with:
 - Clear explanations with proper headings
@@ -270,7 +362,8 @@ Format the answer with:
 - Bullet points for readability
 - Professional interview-ready content
 
-Make it detailed, practical, and interview-ready. Include specific examples and technical details.` }] }],
+Make it detailed, practical, and interview-ready. Include specific examples and technical details.` }]
+            }],
             generationConfig: {
               temperature: 0.3,
               maxOutputTokens: 1500,
@@ -278,14 +371,14 @@ Make it detailed, practical, and interview-ready. Include specific examples and 
           }),
         }
       );
-      
+
       console.log('Gemini API response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Gemini API response data:', data);
         const answer = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        
+
         if (answer) {
           console.log('✅ Got answer from Gemini API');
           ANSWER_BANK[question] = answer;
@@ -300,7 +393,7 @@ Make it detailed, practical, and interview-ready. Include specific examples and 
     } else {
       console.log('❌ No Gemini API key found');
     }
-    
+
     // Fallback to OpenAI if Gemini fails
     const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
     if (OPENAI_API_KEY) {
@@ -327,11 +420,11 @@ Make it detailed, practical, and interview-ready. Include specific examples and 
             temperature: 0.3,
           }),
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           const answer = data.choices?.[0]?.message?.content;
-          
+
           if (answer) {
             ANSWER_BANK[question] = answer;
             return answer;
@@ -341,7 +434,7 @@ Make it detailed, practical, and interview-ready. Include specific examples and 
         console.log('OpenAI failed, using pattern matching:', error);
       }
     }
-    
+
     // If both APIs fail, use pattern matching
     const basicAnswer = generateBasicAnswer(question);
     ANSWER_BANK[question] = basicAnswer;

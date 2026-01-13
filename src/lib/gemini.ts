@@ -1,6 +1,10 @@
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 import { getRandomFrontendQuestions } from "./frontendQuestions";
 import { getRandomBackendQuestions } from "./backendQuestions";
+import { getRandomDevOpsQuestions } from "./devopsQuestions";
+import { getRandomUIUXQuestions } from "./uiuxQuestions";
+import { getRandomDataScienceQuestions } from "./dataScienceQuestions";
+import { getRandomSecurityQuestions } from "./securityQuestions";
 import { getCorrectAnswer } from "./answerBank";
 import { clearOldQuestionHistory, generateSessionSeed } from "./questionRandomizer";
 
@@ -26,11 +30,11 @@ export async function generateInterviewQuestions(
   technologies?: string
 ): Promise<InterviewQuestion[]> {
   console.log('Generating questions for:', { role, experienceLevel, technologies });
-  
+
   // Clear localStorage questions to get fresh ones
   localStorage.removeItem('usedQuestions');
-  
-  const jdContext = jobDescription 
+
+  const jdContext = jobDescription
     ? `\n\nJob Description provided:\n"${jobDescription}"\n\nFocus on skills and requirements mentioned in this JD.`
     : '';
 
@@ -39,7 +43,7 @@ export async function generateInterviewQuestions(
     : '';
 
   const sessionId = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-  
+
   const levelInstructions = {
     'fresher': 'Focus on BASIC concepts, fundamentals, and entry-level scenarios. Avoid complex system design.',
     'entry-level': 'Focus on BASIC concepts, fundamentals, and entry-level scenarios. Avoid complex system design.',
@@ -48,9 +52,9 @@ export async function generateInterviewQuestions(
     'senior': 'Advanced concepts, system design, architecture, and leadership scenarios.',
     'lead': 'Advanced system design, architecture decisions, and team leadership scenarios.'
   };
-  
+
   const levelInstruction = levelInstructions[experienceLevel.toLowerCase() as keyof typeof levelInstructions] || levelInstructions['mid-level'];
-  
+
   // Role-specific question prompts
   const roleSpecificPrompts = {
     'backend': 'Focus on server-side development, databases, APIs, system design, and backend technologies.',
@@ -60,13 +64,13 @@ export async function generateInterviewQuestions(
     'devops': 'Focus on deployment, CI/CD, infrastructure, monitoring, and DevOps practices.',
     'data': 'Focus on data analysis, databases, data processing, and analytics.'
   };
-  
-  const rolePrompt = Object.keys(roleSpecificPrompts).find(key => 
+
+  const rolePrompt = Object.keys(roleSpecificPrompts).find(key =>
     role.toLowerCase().includes(key)
-  ) ? roleSpecificPrompts[Object.keys(roleSpecificPrompts).find(key => 
+  ) ? roleSpecificPrompts[Object.keys(roleSpecificPrompts).find(key =>
     role.toLowerCase().includes(key)
   ) as keyof typeof roleSpecificPrompts] : 'Focus on general software development concepts.';
-  
+
   const prompt = `You are a senior technical interviewer at a top tech company. Generate ${questionCount} COMPLETELY UNIQUE and FRESH interview questions for a ${experienceLevel} ${role} position.${jdContext}${techContext}
 
 ROLE FOCUS: ${rolePrompt}
@@ -109,34 +113,54 @@ Only return the JSON array.`;
     );
 
     console.log('API Response status:', response.status);
-    
+
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`);
     }
 
     const data = await response.json();
     console.log('API Response data:', data);
-    
+
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     console.log('Generated text:', text);
-    
+
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
       const questions = JSON.parse(jsonMatch[0]);
       console.log('Parsed questions:', questions);
       return questions;
     }
-    
+
     throw new Error('Failed to parse questions from API response');
   } catch (error) {
     console.error('Error generating questions:', error);
     console.log('Using local question bank as fallback...');
-    
+
     // Use local question bank as fallback
     const techKey = technologies?.toLowerCase() || role.toLowerCase();
-    
+
     console.log('Role:', role, 'Technologies:', technologies, 'TechKey:', techKey);
-    
+
+    // Full Stack - combine Frontend and Backend questions
+    if (role.toLowerCase().includes('full stack') || role.toLowerCase().includes('fullstack') || role.toLowerCase().includes('full-stack')) {
+      const frontendTechs = ['react', 'javascript', 'html', 'css'];
+      const backendTechs = ['node.js', 'express', 'mongodb'];
+
+      // Split questions between frontend and backend (50-50)
+      const frontendCount = Math.ceil(questionCount / 2);
+      const backendCount = questionCount - frontendCount;
+
+      const frontendQuestions = getRandomFrontendQuestions(frontendTechs, experienceLevel, frontendCount);
+      const backendQuestions = getRandomBackendQuestions(backendTechs, experienceLevel, backendCount);
+
+      // Combine and shuffle
+      const allQuestions = [...frontendQuestions, ...backendQuestions];
+      const shuffled = allQuestions.sort(() => Math.random() - 0.5);
+
+      console.log('Using Full Stack questions (Frontend + Backend):', shuffled);
+      return shuffled;
+    }
+
     // Use the comprehensive question banks
     if (role.toLowerCase().includes('frontend') || techKey.includes('react') || techKey.includes('html') || techKey.includes('css') || techKey.includes('javascript')) {
       const frontendTechs = technologies ? technologies.split(',').map(t => t.trim()) : ['react'];
@@ -148,8 +172,28 @@ Only return the JSON array.`;
       const backendQuestions = getRandomBackendQuestions(backendTechs, experienceLevel, questionCount);
       console.log('Using backend questions:', backendQuestions);
       return backendQuestions;
+    } else if (role.toLowerCase().includes('devops') || techKey.includes('docker') || techKey.includes('kubernetes') || techKey.includes('aws') || techKey.includes('terraform') || techKey.includes('jenkins') || techKey.includes('ansible') || techKey.includes('linux') || techKey.includes('cicd') || techKey.includes('ci/cd')) {
+      const devopsTechs = technologies ? technologies.split(',').map(t => t.trim()) : ['docker', 'kubernetes', 'aws'];
+      const devopsQuestions = getRandomDevOpsQuestions(devopsTechs, experienceLevel, questionCount);
+      console.log('Using devops questions:', devopsQuestions);
+      return devopsQuestions;
+    } else if (role.toLowerCase().includes('ui') || role.toLowerCase().includes('ux') || role.toLowerCase().includes('designer') || techKey.includes('figma') || techKey.includes('design') || techKey.includes('prototype')) {
+      const uiuxTechs = technologies ? technologies.split(',').map(t => t.trim()) : ['ui', 'ux', 'design'];
+      const uiuxQuestions = getRandomUIUXQuestions(uiuxTechs, experienceLevel, questionCount);
+      console.log('Using UI/UX questions:', uiuxQuestions);
+      return uiuxQuestions;
+    } else if (role.toLowerCase().includes('data') || role.toLowerCase().includes('scientist') || role.toLowerCase().includes('analyst') || role.toLowerCase().includes('ml') || role.toLowerCase().includes('machine learning') || techKey.includes('python') || techKey.includes('pandas') || techKey.includes('sklearn') || techKey.includes('tensorflow') || techKey.includes('pytorch') || techKey.includes('statistics')) {
+      const dataScienceTechs = technologies ? technologies.split(',').map(t => t.trim()) : ['data', 'science', 'ml'];
+      const dataScienceQuestions = getRandomDataScienceQuestions(dataScienceTechs, experienceLevel, questionCount);
+      console.log('Using Data Science questions:', dataScienceQuestions);
+      return dataScienceQuestions;
+    } else if (role.toLowerCase().includes('security') || role.toLowerCase().includes('cyber') || role.toLowerCase().includes('infosec') || role.toLowerCase().includes('penetration') || techKey.includes('firewall') || techKey.includes('encryption') || techKey.includes('network') || techKey.includes('owasp')) {
+      const securityTechs = technologies ? technologies.split(',').map(t => t.trim()) : ['security', 'cyber', 'infosec'];
+      const securityQuestions = getRandomSecurityQuestions(securityTechs, experienceLevel, questionCount);
+      console.log('Using Security questions:', securityQuestions);
+      return securityQuestions;
     }
-    
+
     // Final fallback - return basic questions
     return [
       {
@@ -215,14 +259,14 @@ Be constructive and specific. Only return the JSON, no other text.`;
 
     const data = await response.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const feedback = JSON.parse(jsonMatch[0]);
       feedback.correctAnswer = await getCorrectAnswer(question);
       return feedback;
     }
-    
+
     throw new Error('Failed to parse feedback');
   } catch (error) {
     console.error('Error evaluating answer:', error);
@@ -287,12 +331,12 @@ Only return the JSON, no other text.`;
 
     const data = await response.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
-    
+
     throw new Error('Failed to generate report');
   } catch (error) {
     console.error('Error generating report:', error);
