@@ -72,7 +72,7 @@ const Hero = () => {
                 </Button>
               </div>
               <p className="text-base text-slate-500 font-semibold">
-                <span className="text-yellow-500 text-lg">✨</span> No signup required • Start in 30 seconds
+                <span className="text-yellow-500 text-lg">✨</span> Quick login • Start practicing in 30 seconds
               </p>
             </div>
           </div>
