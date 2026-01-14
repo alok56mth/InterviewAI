@@ -34,10 +34,6 @@ const Navbar = () => {
               <span>Features</span>
               <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></div>
             </a>
-            <Link to="/contact" className="text-slate-600 hover:text-blue-600 transition-all duration-300 font-semibold text-lg relative group">
-              <span>Contact</span>
-              <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></div>
-            </Link>
             <SignedIn>
               <Link to="/interview-setup" className="text-slate-600 hover:text-blue-600 transition-all duration-300 font-semibold text-lg relative group">
                 <span>Practice</span>
@@ -48,6 +44,10 @@ const Navbar = () => {
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></div>
               </Link>
             </SignedIn>
+            <Link to="/contact" className="text-slate-600 hover:text-blue-600 transition-all duration-300 font-semibold text-lg relative group">
+              <span>Contact</span>
+              <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></div>
+            </Link>
           </div>
 
           {/* Auth Section */}
@@ -97,9 +97,6 @@ const Navbar = () => {
               <a href="/#features" className="text-slate-600 hover:text-slate-900 transition-colors py-2 font-medium">
                 Features
               </a>
-              <Link to="/contact" className="text-slate-600 hover:text-slate-900 transition-colors py-2 font-medium">
-                Contact
-              </Link>
               <SignedIn>
                 <Link to="/interview-setup" className="text-slate-600 hover:text-slate-900 transition-colors py-2 font-medium">
                   Practice
@@ -108,6 +105,9 @@ const Navbar = () => {
                   Dashboard
                 </Link>
               </SignedIn>
+              <Link to="/contact" className="text-slate-600 hover:text-slate-900 transition-colors py-2 font-medium">
+                Contact
+              </Link>
               <div className="flex flex-col gap-2 pt-4 border-t border-slate-200/50">
                 <SignedOut>
                   <SignInButton mode="modal">

@@ -148,6 +148,18 @@ const experienceLevels = [
   { value: "lead", label: "Lead/Principal (8+ years)", icon: "👑" },
 ];
 
+// Technology suggestions for each role
+const roleTechSuggestions: Record<string, string[]> = {
+  "frontend-developer": ["React", "JavaScript", "TypeScript", "HTML", "CSS", "Next.js", "Vue.js", "Angular", "Redux", "Tailwind CSS"],
+  "backend-developer": ["Node.js", "Express.js", "Python", "Django", "FastAPI", "MongoDB", "PostgreSQL", "REST API", "GraphQL", "Redis"],
+  "fullstack-developer": ["React", "Node.js", "TypeScript", "MongoDB", "Express.js", "Next.js", "PostgreSQL", "REST API", "Docker", "AWS"],
+  "devops-engineer": ["Docker", "Kubernetes", "AWS", "Terraform", "Jenkins", "Linux", "CI/CD", "Ansible", "Prometheus", "Grafana"],
+  "ui-ux-designer": ["Figma", "UI Design", "UX Research", "Prototyping", "Wireframing", "User Testing", "Design Systems", "Adobe XD", "Sketch", "Interaction Design"],
+  "data-scientist": ["Python", "Machine Learning", "TensorFlow", "PyTorch", "Pandas", "NumPy", "SQL", "Statistics", "Deep Learning", "Scikit-learn"],
+  "security-engineer": ["Network Security", "Penetration Testing", "OWASP", "Cryptography", "Firewall", "Cloud Security", "Incident Response", "SIEM", "Vulnerability Assessment", "Compliance"],
+};
+
+
 const InterviewSetup = () => {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState("");
@@ -196,7 +208,7 @@ const InterviewSetup = () => {
       <Navbar />
       
       <main className="container mx-auto px-6 pt-28 pb-16 relative">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {/* Professional Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-4 px-6 py-3 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 rounded-full border border-indigo-200/50 mb-8">
@@ -290,9 +302,65 @@ const InterviewSetup = () => {
                   })}
                 </div>
               </div>
-              {/* Experience Level & Technologies - Two Column Layout */}
+              {/* Technologies & Experience Level - Two Column Layout */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Experience Level */}
+                {/* Technologies - Now First */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center">
+                      <Wrench className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <Label className="text-base font-semibold text-slate-800">Technologies / Skills</Label>
+                  </div>
+                  <Input
+                    placeholder="React, Node.js, TypeScript, MongoDB, AWS..."
+                    value={technologies}
+                    onChange={(e) => setTechnologies(e.target.value)}
+                    className="h-14 bg-white border-2 border-slate-200 hover:border-pink-300 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 px-4"
+                  />
+                  
+                  {/* Show suggestions when role is selected */}
+                  {selectedRole && roleTechSuggestions[selectedRole] && (
+                    <div className="p-3 bg-gradient-to-r from-pink-50/80 to-rose-50/80 rounded-xl border border-pink-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm">💡</span>
+                        <span className="text-xs font-medium text-pink-600">Suggested technologies for {roles.find(r => r.value === selectedRole)?.label}:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {roleTechSuggestions[selectedRole].map((tech) => {
+                          const isSelected = technologies.toLowerCase().includes(tech.toLowerCase());
+                          return (
+                            <button
+                              key={tech}
+                              type="button"
+                              onClick={() => {
+                                if (!isSelected) {
+                                  setTechnologies(prev => prev ? `${prev}, ${tech}` : tech);
+                                }
+                              }}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
+                                isSelected
+                                  ? 'bg-pink-500 text-white cursor-default'
+                                  : 'bg-white hover:bg-pink-500 hover:text-white text-pink-600 border border-pink-200 hover:border-pink-500 hover:shadow-sm cursor-pointer'
+                              }`}
+                            >
+                              {isSelected ? `✓ ${tech}` : `+ ${tech}`}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {!selectedRole && (
+                    <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200">
+                      <span className="text-lg">👆</span>
+                      <span className="text-sm text-slate-500">Select a role above to see suggested technologies</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Experience Level - Now Second */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
@@ -319,26 +387,6 @@ const InterviewSetup = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-
-                {/* Technologies */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center">
-                      <Wrench className="w-3.5 h-3.5 text-white" />
-                    </div>
-                    <Label className="text-base font-semibold text-slate-800">Technologies / Skills</Label>
-                  </div>
-                  <Input
-                    placeholder="React, Node.js, TypeScript, MongoDB, AWS..."
-                    value={technologies}
-                    onChange={(e) => setTechnologies(e.target.value)}
-                    className="h-14 bg-white border-2 border-slate-200 hover:border-pink-300 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 px-4"
-                  />
-                  <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg border border-pink-100">
-                    <span className="text-lg">💡</span>
-                    <span className="text-sm text-pink-700">Enter technologies separated by commas for targeted technical questions</span>
-                  </div>
                 </div>
               </div>
 

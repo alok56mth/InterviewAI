@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
@@ -28,45 +28,62 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// Layout component to include ChatBot on all pages
+const RootLayout = () => {
+  return (
+    <>
+      <Outlet />
+      <ChatBot />
+    </>
+  );
+};
+
+// Create router with v7 future flags to eliminate warnings
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <RootLayout />,
+      children: [
+        { index: true, element: <Index /> },
+        { path: "contact", element: <Contact /> },
+        { path: "sign-in", element: <SignIn /> },
+        { path: "sign-up", element: <SignUp /> },
+        { path: "dashboard", element: <ProtectedRoute><Dashboard /></ProtectedRoute> },
+        { path: "interview-setup", element: <ProtectedRoute><InterviewSetup /></ProtectedRoute> },
+        { path: "interview", element: <ProtectedRoute><Interview /></ProtectedRoute> },
+        { path: "results", element: <ProtectedRoute><Results /></ProtectedRoute> },
+        { path: "*", element: <NotFound /> },
+      ],
+    },
+  ],
+  {
+    future: {
+      v7_normalizeFormMethod: true,
+      v7_fetcherPersist: true,
+      v7_partialHydration: true,
+      v7_skipActionErrorRevalidation: true,
+    },
+  }
+);
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/interview-setup" element={
-              <ProtectedRoute>
-                <InterviewSetup />
-              </ProtectedRoute>
-            } />
-            <Route path="/interview" element={
-              <ProtectedRoute>
-                <Interview />
-              </ProtectedRoute>
-            } />
-            <Route path="/results" element={
-              <ProtectedRoute>
-                <Results />
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <ChatBot />
-        </BrowserRouter>
+        <RouterProvider 
+          router={router} 
+          future={{
+            v7_startTransition: true,
+          }}
+        />
       </TooltipProvider>
     </QueryClientProvider>
   );
 };
 
 export default App;
+
+
